@@ -1,5 +1,6 @@
 const express = require('express')
 const app = express()
+const morgan = require('morgan')
 
 const persons = [
     { 
@@ -25,6 +26,22 @@ const persons = [
 ]
 
 app.use(express.json())
+
+morgan.token('body', (request, response) => {
+  return JSON.stringify(request.body)
+})
+
+
+// Creo un formato personalizado para post donde se vea el nombre y el numero del usuario nuevo, pero uso la plantilla dev para el resto de los metodos
+morgan.format('myPost', ':method :url :status :response-time ms - :res[content-length] :body ')
+
+app.use((request, response, next) => {
+    if (request.method === 'POST') {
+    morgan('myPost')(request, response, next)
+  } else {
+    morgan('dev')(request, response, next)
+  }
+})
 
 app.get('/', (request, response) => {
   response.send('<h1>Phonebook!</h1>')
@@ -95,6 +112,12 @@ app.post('/api/persons', (request, response) => {
   response.json(person)
 })
 
+
+const unknownEndpoint = (request, response) => {
+  response.status(404).send({ error: 'unknown endpoint' })
+}
+
+app.use(unknownEndpoint)
 
 const PORT = 3001
 app.listen(PORT, () => {
