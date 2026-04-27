@@ -1,0 +1,7 @@
+POST http://localhost:3001/api/notes
+Content-Type: application/json
+
+{
+  "content": "Si tuvieras fe como un granito de mostaza",
+  "important": true
+}
